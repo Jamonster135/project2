@@ -1,0 +1,4 @@
+#team1|team2|team1goals|team2goals\n
+#team1|team2  |t1goals|t2goals\n
+#wewin|youlose|5      |4      \n
+wewin|youlose|1|5
