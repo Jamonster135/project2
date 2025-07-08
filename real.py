@@ -13,26 +13,32 @@ from random import randint
 #pfa = open(PLAYERS_FILE, "a") #pfa - players file, append
 teams = {}
 
-def modifyplayer(team): #player creation screen, a non existent player can be given
+def modifyplayer(team, name=None): #player creation screen, a non existent player can be given but teams must be loaded
     #Needs attributes' name, attack, defense, needs to save/load team attribute but not use it because team is parent dict and better memory usage
+    setname = False
+    if name != None:
+        setname = True
     while True:
-        name = input("Please enter their name ").lower().strip()
+        if setname == False:
+            name = input("Please enter their name ").lower().strip()
         atk = input("Please enter their attack (0-10) ").strip()
         dfn = input("Please enter their defense (0-7) ").strip()
-        if name.isalpha() and atk.isdecimal() and dfn.isdecimal():
-            if int(atk) <= 10 and int(atk) >= 0 and int(dfn) <= 7 and int(dfn) >= 0:
-                atk = int(atk)
-                dfn = int(dfn)
+        num = input("Which player is this (1-6) ").strip()
+        if name.isalpha() and atk.isdecimal() and dfn.isdecimal() and num.isdecimal():
+            if int(atk) <= 10 and int(atk) >= 0 and int(dfn) <= 7 and int(dfn) >= 0 and int(num) <= 6 and int(num) >= 0:
+                #atk = int(atk)
+                #dfn = int(dfn)
+                #num = int(num)
                 break
             else:
-                print("Invalid attack/defense value")
+                print("Invalid attack/defense/number value, out of bounds")
         else:
-            print("Invalid name/atk/dfn, contained numbers/letters or symbols.")
-    tfr.seek(0) #make sure tfr is at beginning
-    tfa.write(name + "|" + str(atk) + "|" + str(dfn) + "|\n")
+            print("Invalid name/attack/defense/number, contained invalid characters.")
+    pfa = open(PLAYERS_FILE, "a") #pfa - players file, append
+    pfa.write(team + "|" + str(atk) + "|" + str(dfn) + "|" + str(num) + "|" + name + "\n")
     print("Player '" + name + "' created")
-    tfa.close() #they shouldnt need to be used after this point
-    tfr.close()
+    pfa.close()
+    loadplayers() #this whole function sucks and is a horrible way to do it and floods the players file, please remake this and check against the teams file, since players need to be loaded anyway in the current version of this function so no harm done 
 
 def selectplayer(): #player selection screen
     global username
@@ -92,13 +98,16 @@ def loadgames():
         line = line.strip()
         if line.startswith('#'):  #allow comments in reports file
             continue
-        parts = line.split('|') #team, dfn, atk, num, name
+        parts = line.split('|') #team1, team2, team1goals, team2goals
         #game = parts[0].strip()
-        games[team1]
-        games[team]['player' + parts[3].strip()] = {}
-        teams[team]['player' + parts[3].strip()]['name'] = parts[4].strip()
-        teams[team]['player' + parts[3].strip()]['dfn'] = parts[1].strip()
-        teams[team]['player' + parts[3].strip()]['atk'] = parts[2].strip()
+        games[parts[0]] = {}
+        games[parts[0]]['goals'] = parts[2].strip()
+        games[parts[0]]['oppname'] = parts[1].strip()
+        games[parts[0]]['oppgoals'] = parts[3].strip()
+        games[parts[1]] = {} # by having the game saved in 2 different variables, it uses more memory to save cpu (no searching)
+        games[parts[1]]['goals'] = parts[3].strip()
+        games[parts[1]]['oppname'] = parts[0].strip()
+        games[parts[1]]['oppgoals'] = parts[2].strip()
     gfr.close()
 
 loadgames()
@@ -147,10 +156,13 @@ def loadplayers(): #loadplayers() and loadteams() must both be called for full t
 
 #loadplayers()
 #print(teams, "\n")
-#loadteams()
-#loadplayers()
-#print(teams)
+loadteams()
+loadplayers()
+print(teams, "\n")
 #print(teams[input("input a team ")]['player' + input("input a player number ")][input("input data field")])
+
+modifyplayer("team74", "jamie")
+print(teams)
 
 def quizlookup():
     print("Here, you can lookup quizzes, their questions and their answers")
