@@ -100,18 +100,30 @@ def loadgames():
             continue
         parts = line.split('|') #team1, team2, team1goals, team2goals
         #game = parts[0].strip()
-        games[parts[0]] = {}
-        games[parts[0]]['goals'] = parts[2].strip()
-        games[parts[0]]['oppname'] = parts[1].strip()
-        games[parts[0]]['oppgoals'] = parts[3].strip()
-        games[parts[1]] = {} # by having the game saved in 2 different variables, it uses more memory to save cpu (no searching)
-        games[parts[1]]['goals'] = parts[3].strip()
-        games[parts[1]]['oppname'] = parts[0].strip()
-        games[parts[1]]['oppgoals'] = parts[2].strip()
-    gfr.close()
-
-loadgames()
-print(games)
+        try:
+            if games[parts[0]] != None:
+                pass
+        except KeyError:
+            games[parts[0]] = {}
+            games[parts[0]]['counter'] = 0
+        try:
+            if games[parts[1]] != None:
+                pass
+        except KeyError:
+            games[parts[1]] = {}
+            games[parts[1]]['counter'] = 0
+        #games[teamname][gamenum]['datawanted'] to access data, can loop through games[teamname] to get all games (e.g. for leaderboards)
+        games[parts[0]][games[parts[0]]['counter']] = {}
+        games[parts[0]][games[parts[0]]['counter']]['goals'] = parts[2].strip()
+        games[parts[0]][games[parts[0]]['counter']]['oppname'] = parts[1].strip()
+        games[parts[0]][games[parts[0]]['counter']]['oppgoals'] = parts[3].strip()
+        games[parts[0]]['counter'] = games[parts[0]]['counter'] + 1
+        games[parts[1]][games[parts[1]]['counter']] = {} # by having the game saved in 2 different variables, it uses more memory to save cpu (no searching)
+        games[parts[1]][games[parts[1]]['counter']]['goals'] = parts[3].strip()
+        games[parts[1]][games[parts[1]]['counter']]['oppname'] = parts[0].strip()
+        games[parts[1]][games[parts[1]]['counter']]['oppgoals'] = parts[2].strip()
+        games[parts[1]]['counter'] = games[parts[1]]['counter'] + 1
+    gfr.close() #this, is pain.
 
 def loadteams():
     global teams
@@ -126,7 +138,7 @@ def loadteams():
         try:
             if teams[team] == {}:
                 pass
-        except:
+        except KeyError:
             teams[team] = {}
         teams[team]['wins'] = parts[1].strip()
         teams[team]['draws'] = parts[2].strip()
@@ -146,7 +158,7 @@ def loadplayers(): #loadplayers() and loadteams() must both be called for full t
         try:
             if teams[team] == {}:
                 pass
-        except:
+        except KeyError:
             teams[team] = {}
         teams[team]['player' + parts[3].strip()] = {}
         teams[team]['player' + parts[3].strip()]['name'] = parts[4].strip()
@@ -156,13 +168,22 @@ def loadplayers(): #loadplayers() and loadteams() must both be called for full t
 
 #loadplayers()
 #print(teams, "\n")
-loadteams()
-loadplayers()
-print(teams, "\n")
+#loadteams()
+#loadplayers()
+#print(teams, "\n")
 #print(teams[input("input a team ")]['player' + input("input a player number ")][input("input data field")])
 
-modifyplayer("team74", "jamie")
-print(teams)
+#modifyplayer("team74", "jamie")
+#print(teams)
+
+def loaddata():
+    loadteams()
+    loadplayers()
+    loadgames()
+
+loaddata()
+print(games)
+print(games[input("What team name do you want the data of?")])
 
 def quizlookup():
     print("Here, you can lookup quizzes, their questions and their answers")
